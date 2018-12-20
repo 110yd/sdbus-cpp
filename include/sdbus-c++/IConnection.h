@@ -32,7 +32,29 @@
 
 namespace sdbus {
 
-    /********************************************//**
+    /** \brief Event loop processing pending action */
+    enum class ConnectionQueryAction {
+        HasWorkToDo,
+        WaitForEvent
+    };
+
+    /**
+     * @struct ConnectionPollRequest
+     *
+     * Describes parameters application should pass to poll() function
+     */
+    struct ConnectionPollRequest {
+        /** @brief Bus file descriptor */
+        int fd;
+
+        /** @brief Desired events to poll */
+        short int events;
+
+        /** @brief Desired timeout in milliseconds */
+        int timeout;
+    };
+
+    /**
      * @class IConnection
      *
      * An interface to D-Bus bus connection. Incorporates implementation
@@ -41,7 +63,7 @@ namespace sdbus {
      * All methods throw @sdbus::Error in case of failure. The class is
      * thread-aware, but not thread-safe.
      *
-     ***********************************************/
+     **/
     class IConnection
     {
     public:
@@ -93,7 +115,37 @@ namespace sdbus {
         inline virtual ~IConnection() = 0;
     };
 
+    /**
+     * @class IEventConnection
+     *
+     *     Additional interface for incorporating D-Bus communication into
+     * application event processing loop
+     */
+    class IEventConnection : public IConnection
+    {
+    public:
+        using IConnection::IConnection;
+
+        inline virtual ~IEventConnection() = 0;
+
+        /*!
+         * \brief Handle upcoming actions for D-Bus communication
+         *
+         * \return ConnectionQueryAction::WaitForEvent
+         *         if connection has nothing to do and should poll for event
+         */
+        virtual ConnectionQueryAction iterate() = 0;
+
+        /*!
+         * \brief Request polling parameters
+         *
+         * \return Desired polling parameters
+         */
+        virtual ConnectionPollRequest requestPoll() = 0;
+    };
+
     IConnection::~IConnection() {}
+    IEventConnection::~IEventConnection() {}
 
     /*!
     * @brief Creates/opens D-Bus system connection
@@ -152,6 +204,25 @@ namespace sdbus {
     */
     std::unique_ptr<sdbus::IConnection> createSessionBusConnection(const std::string& name);
 
+    /*!
+    * @brief Creates/opens D-Bus session connection with a name
+    *
+    * @param[in] name Name to request on the connection after its opening
+    * @return Connection instance
+    *
+    * @throws sdbus::Error in case of failure
+    */
+    std::unique_ptr<sdbus::IEventConnection> createSystemEventConnection (const std::string &name = "");
+
+    /*!
+    * @brief Creates/opens D-Bus session connection with a name
+    *
+    * @param[in] name Name to request on the connection after its opening
+    * @return Connection instance
+    *
+    * @throws sdbus::Error in case of failure
+    */
+    std::unique_ptr<sdbus::IEventConnection> createSessionEventConnection(const std::string &name = "");
 }
 
 #endif /* SDBUS_CXX_ICONNECTION_H_ */

@@ -31,6 +31,7 @@
 #include <unistd.h>
 #include <poll.h>
 #include <sys/eventfd.h>
+#include <sstream>
 
 namespace sdbus { namespace internal {
 
@@ -294,7 +295,7 @@ Connection::WaitResult Connection::waitForNextRequest()
 
     r = sd_bus_get_events(bus);
     SDBUS_THROW_ERROR_IF(r < 0, "Failed to get bus events", -r);
-    short int sdbusEvents = r;
+    short int sdbusEvents = static_cast<short int>(r);
 
     uint64_t usec;
     sd_bus_get_timeout(bus, &usec);
@@ -330,14 +331,14 @@ std::string Connection::composeSignalMatchFilter( const std::string& objectPath
                                                 , const std::string& interfaceName
                                                 , const std::string& signalName )
 {
-    std::string filter;
+    std::ostringstream builder;
 
-    filter += "type='signal',";
-    filter += "interface='" + interfaceName + "',";
-    filter += "member='" + signalName + "',";
-    filter += "path='" + objectPath + "'";
+    builder << "type='signal',"
+            << "interface='" << interfaceName << "',"
+            << "member='"    << signalName    << "',"
+            << "path='"      << objectPath    << "'";
 
-    return filter;
+    return builder.str();
 }
 
 }}

@@ -25,6 +25,7 @@ set(SDBUSCPP_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include/${SDBUSCPP_INCLUDE_SUBDIR})
 
 set(SDBUSCPP_CPP_SRCS
     ${SDBUSCPP_SOURCE_DIR}/Connection.cpp
+    ${SDBUSCPP_SOURCE_DIR}/EventLoopConnection.cpp
     ${SDBUSCPP_SOURCE_DIR}/ConvenienceClasses.cpp
     ${SDBUSCPP_SOURCE_DIR}/Error.cpp
     ${SDBUSCPP_SOURCE_DIR}/Message.cpp
@@ -36,6 +37,7 @@ set(SDBUSCPP_CPP_SRCS
 
 set(SDBUSCPP_HDR_SRCS
     ${SDBUSCPP_SOURCE_DIR}/Connection.h
+    ${SDBUSCPP_SOURCE_DIR}/EventLoopConnection.h
     ${SDBUSCPP_SOURCE_DIR}/IConnection.h
     ${SDBUSCPP_SOURCE_DIR}/MessageUtils.h
     ${SDBUSCPP_SOURCE_DIR}/Object.h
